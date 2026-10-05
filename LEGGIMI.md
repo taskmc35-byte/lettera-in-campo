@@ -1,50 +1,43 @@
-# Lettera in Campo — come ottenere l'APK
+# Lettera in Campo — GitHub Pages + PWA Builder
 
-Il progetto si compila da solo su GitHub: carichi i file, GitHub crea l'APK e te lo mette in una pagina da cui scaricarlo sul telefono. Non serve installare niente sul PC.
+Stesso metodo di Impostore: il gioco va online gratis su GitHub Pages come web app installabile (PWA), poi PWA Builder ne ricava l'APK per Android.
 
-## Cosa c'è nella cartella
+## 1. Crea il repository e carica i file
 
-| File / cartella | A cosa serve |
-|---|---|
-| `www/` | Il gioco (index.html e i font) |
-| `assets/` | Icona e schermata di avvio |
-| `.github/workflows/build-apk.yml` | Le istruzioni che GitHub segue per creare l'APK |
-| `package.json`, `capacitor.config.json` | Configurazione dell'app Android |
+1. Su github.com: **+ → New repository**, nome `lettera-in-campo`, **Public**, poi **Create repository**.
+2. Clicca **uploading an existing file**.
+3. Estrai lo zip, apri la cartella `lettera-in-campo-pwa`, seleziona tutto il contenuto (Ctrl+A) e trascinalo nella pagina. Devono esserci `index.html`, `manifest.webmanifest`, `sw.js` e le cartelle `icons` e `fonts`.
+4. Clicca **Commit changes**.
 
-## 1. Crea il repository
+## 2. Attiva GitHub Pages
 
-1. Vai su github.com e accedi.
-2. In alto a destra: **+ → New repository**.
-3. Nome: `lettera-in-campo`. Lascia **Public** (con Private le build consumano i minuti gratuiti, che comunque bastano).
-4. Non spuntare README né .gitignore. Clicca **Create repository**.
+1. Nel repository: **Settings → Pages**.
+2. In **Source** scegli **Deploy from a branch**, ramo **main**, cartella **/ (root)**, poi **Save**.
+3. Dopo 1–2 minuti in alto compare l'indirizzo, del tipo `https://TUONOME.github.io/lettera-in-campo/`.
+4. Aprilo dal telefono e prova il gioco.
 
-## 2. Carica i file
+## 3. Crea l'APK con PWA Builder
 
-1. Estrai lo zip sul PC.
-2. Nella pagina del repository vuoto clicca **uploading an existing file**.
-3. Apri la cartella estratta `lettera-in-campo-app`, seleziona **tutto il contenuto** (Ctrl+A) e trascinalo nella pagina. Devono comparire anche `.github`, `www` e `assets`.
-4. In basso clicca **Commit changes**.
+1. Vai su **pwabuilder.com**, incolla l'indirizzo di GitHub Pages e clicca **Start**.
+2. Il punteggio del manifest e del service worker dovrebbe risultare valido (icone, nome, colori e modalità offline sono già impostati).
+3. Clicca **Package for stores → Android → Generate Package**.
+4. Package ID consigliato: `it.novaprojectagency.letteraincampo`. Lascia il resto com'è e scarica lo zip.
+5. Nello zip trovi:
+   - il file **.apk**, da installare sui telefoni Android;
+   - il file **.aab**, da usare solo se un giorno pubblichi su Google Play;
+   - la **chiave di firma** (signing.keystore + password nel file di testo). Conservala: serve per tutti gli aggiornamenti futuri della stessa app.
 
-Se la cartella `.github` non viene caricata: **Add file → Create new file**, scrivi come nome `.github/workflows/build-apk.yml`, incolla il contenuto del file e salva.
+## 4. Installa
 
-## 3. Aspetta la build
+Manda l'APK sul telefono (Drive, WhatsApp, cavo), aprilo e consenti l'installazione da questa fonte.
 
-1. Apri la scheda **Actions** del repository.
-2. Vedrai il lavoro **Crea APK** in corso (pallino giallo). Ci mette circa 4–6 minuti.
-3. Quando diventa verde, l'APK è pronto.
+## Nascondere la barra dell'indirizzo
 
-Se diventa rosso, apri il lavoro e guarda il passaggio con la X: il messaggio d'errore dice cosa non va.
+Se nell'app compare la barra con l'indirizzo in alto, manca il file di verifica `assetlinks.json`. PWA Builder lo include nello zip. Su GitHub Pages va messo nella radice del dominio, cioè nel repository `TUONOME.github.io`, in `.well-known/assetlinks.json`. Se lo hai già fatto per Impostore, aggiungi la nuova voce nello stesso file accanto a quella esistente.
 
-## 4. Scarica e installa l'APK
+## Aggiornare il gioco
 
-1. Dal telefono Android apri il repository su GitHub e vai su **Releases** (colonna a destra).
-2. Scarica `lettera-in-campo.apk` dall'ultima release.
-3. Aprilo. Android chiederà di consentire l'installazione da questa fonte: autorizza e installa.
+1. Carica su GitHub la nuova versione di `index.html`.
+2. In `sw.js` cambia `lettera-in-campo-v1` in `v2`, poi `v3` e così via.
 
-L'APK è una build di test (debug): va benissimo per installarla e passarla agli amici, ma non è firmata per il Play Store.
-
-## Modificare il gioco
-
-Ogni volta che carichi una nuova versione di `www/index.html` (o di qualsiasi file) sul ramo `main`, GitHub ricrea l'APK e pubblica una nuova release. Puoi anche rilanciarla a mano: **Actions → Crea APK → Run workflow**.
-
-Per cambiare l'icona sostituisci i file in `assets/` mantenendo gli stessi nomi (PNG 1024×1024, splash 2732×2732).
+L'app installata si aggiorna da sola alla riapertura, senza rifare l'APK. L'APK va rigenerato solo se cambi nome, icona o colori.
