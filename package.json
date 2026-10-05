@@ -1,0 +1,19 @@
+{
+  "name": "lettera-in-campo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gioco a turni con lettera estratta, categorie, timer e conteggio parole",
+  "scripts": {
+    "android:add": "cap add android",
+    "android:icons": "capacitor-assets generate --android --iconBackgroundColor \"#1b1830\" --iconBackgroundColorDark \"#1b1830\" --splashBackgroundColor \"#1b1830\" --splashBackgroundColorDark \"#1b1830\"",
+    "android:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.5.2"
+  }
+}

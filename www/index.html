@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#1b1830">
+<title>Lettera in Campo</title>
+<style>
+@font-face{font-family:'Big Shoulders Display';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/big-shoulders-display-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Big Shoulders Display';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/big-shoulders-display-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Big Shoulders Display';font-style:normal;font-weight:900;font-display:swap;src:url(fonts/big-shoulders-display-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format('woff2')}
+html{color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
+input{user-select:text;-webkit-user-select:text}
+img{max-width:100%}[hidden]{display:none!important}
+/* Layout: one-screen app, tabellone da stadio — una colonna centrata, controlli grandi in basso per il pollice */
+:root{
+  --pitch:#1b1830;      /* sfondo: inchiostro blu-viola */
+  --pitch-2:#25213f;    /* superfici */
+  --line:#3a3560;       /* bordi */
+  --chalk:#f5f1ff;      /* testo */
+  --muted:#aaa4c8;      /* testo secondario */
+  --card:#ff8a3d;       /* accento: arancio mandarino */
+  --red:#ff4d7a;        /* tempo che scade */
+  --ink:#1b1426;        /* testo su accento */
+  --display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--pitch);color:var(--chalk);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+.app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-inline:16px;padding-block:14px 18px;gap:16px}
+.screen{display:flex;flex-direction:column;gap:16px;flex:1}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.brand b{color:var(--card)}
+.tag{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+h2{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em;margin:0;text-wrap:balance}
+.panel{background:var(--pitch-2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{min-width:0}
+.players{display:flex;flex-direction:column;gap:8px}
+.player{display:flex;gap:8px;align-items:center}
+.player .num{font-family:var(--display);font-weight:800;font-size:20px;width:28px;text-align:center;color:var(--card);font-variant-numeric:tabular-nums}
+input[type=text]{flex:1;min-width:0;background:var(--pitch);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px}
+input[type=text]:focus,select:focus{outline:2px solid var(--card);outline-offset:1px}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:10px;border:1px solid var(--line);background:transparent;font-size:22px;line-height:1;cursor:pointer}
+.icon-btn:disabled{opacity:.35}
+.ghost{background:transparent;border:1px dashed var(--line);border-radius:10px;padding:11px;cursor:pointer;color:var(--muted);font-weight:700}
+.ghost:disabled{opacity:.4}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:700;font-size:15px;display:inline-flex;gap:6px;align-items:center}
+.chip[aria-pressed=true]{background:var(--card);color:var(--ink);border-color:var(--card)}
+.chip .x{font-weight:400;opacity:.6;padding-left:2px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper .val{font-family:var(--display);font-weight:900;font-size:40px;min-width:3.2ch;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+.stepper .unit{color:var(--muted);font-size:14px}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;font-variant-numeric:tabular-nums}
+.presets button[aria-pressed=true]{border-color:var(--card);color:var(--card)}
+.toggle{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:15px}
+.toggle input{width:20px;height:20px;accent-color:var(--card);margin-top:2px;flex:none}
+.cta{margin-top:auto;background:var(--card);color:var(--ink);border:none;border-radius:14px;padding:17px;font-family:var(--display);font-weight:900;font-size:24px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;width:100%}
+.cta:disabled{opacity:.4}
+.cta.alt{background:transparent;color:var(--chalk);border:1px solid var(--line);font-size:18px;padding:13px}
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:auto}
+button:focus-visible{outline:2px solid var(--card);outline-offset:2px}
+.hint{color:var(--muted);font-size:14px;margin:0}
+
+/* tabellone */
+.board{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:end;border-bottom:2px solid var(--line);padding-bottom:10px}
+.board .who{font-family:var(--display);font-weight:900;font-size:34px;text-transform:uppercase;line-height:1;overflow-wrap:anywhere}
+.board .meta{text-align:right;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.1em}
+.letter-wrap{display:flex;align-items:center;justify-content:center;gap:18px}
+.letter{width:150px;height:170px;border-radius:16px;background:var(--card);color:var(--ink);display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:132px;line-height:1;box-shadow:0 10px 0 rgba(0,0,0,.25);transform:rotate(-3deg)}
+.letter.small{width:76px;height:88px;font-size:66px;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.letter.rolling{animation:shake .09s linear infinite}
+@keyframes shake{0%{transform:rotate(-3deg)}50%{transform:rotate(2deg)}100%{transform:rotate(-3deg)}}
+.cat{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em}
+.center{text-align:center}
+
+/* partita */
+.clock{position:relative;height:14px;border-radius:7px;background:var(--pitch-2);border:1px solid var(--line);overflow:hidden}
+.clock i{position:absolute;inset:0;background:var(--card);transform-origin:left;transition:background .2s}
+.clock.low i{background:var(--red)}
+.time{font-family:var(--display);font-weight:900;font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.time.low{color:var(--red)}
+.counter{flex:1;min-height:220px;border-radius:20px;border:none;background:var(--chalk);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.counter:active{transform:scale(.985)}
+.counter .n{font-family:var(--display);font-weight:900;font-size:120px;line-height:.9;font-variant-numeric:tabular-nums}
+.counter .s{font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:13px}
+.counter.bump .n{animation:bump .18s ease-out}
+@keyframes bump{from{transform:scale(1.15)}to{transform:scale(1)}}
+.counter:disabled{opacity:.5}
+.ctrl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ctrl button{border:1px solid var(--line);background:var(--pitch-2);border-radius:12px;padding:13px 6px;font-weight:700;cursor:pointer;font-size:15px}
+
+/* classifiche */
+.table{display:flex;flex-direction:column}
+.trow{display:grid;grid-template-columns:30px 1fr auto auto;gap:10px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line)}
+.trow:last-child{border-bottom:none}
+.trow .pos{font-family:var(--display);font-weight:800;font-size:20px;color:var(--muted);font-variant-numeric:tabular-nums}
+.trow .nm{font-weight:700;overflow-wrap:anywhere}
+.trow .pts{font-family:var(--display);font-weight:900;font-size:26px;font-variant-numeric:tabular-nums;text-align:right;min-width:2ch}
+.trow .sub{color:var(--muted);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.trow.top .pos{color:var(--card)}
+.trow.top .nm::after{content:" ★";color:var(--card)}
+.trow.wait{opacity:.45}
+.winner{background:var(--card);color:var(--ink);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:2px}
+.winner .k{font-size:12px;text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+.winner .v{font-family:var(--display);font-weight:900;font-size:34px;text-transform:uppercase;line-height:1.05;overflow-wrap:anywhere}
+.result-big{font-family:var(--display);font-weight:900;font-size:110px;line-height:.9;color:var(--card);font-variant-numeric:tabular-nums}
+
+/* conferma interna */
+.sheet{position:fixed;inset:0;background:rgba(12,10,24,.72);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10}
+.sheet .panel{width:100%;max-width:488px}
+@media (prefers-reduced-motion:reduce){.letter.rolling,.counter.bump .n{animation:none}.counter:active{transform:none}}
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+const $app = document.getElementById('app');
+
+/* ---------- categorie ---------- */
+const BUILTIN = [
+  {id:'calciatori', name:'Calciatori'},
+  {id:'squadre', name:'Squadre di calcio'},
+  {id:'citta', name:'Città'},
+  {id:'nazioni', name:'Nazioni'},
+  {id:'animali', name:'Animali'},
+  {id:'cantanti', name:'Cantanti'},
+  {id:'film', name:'Film'},
+  {id:'cibi', name:'Cibi e piatti'},
+  {id:'marche', name:'Marche'},
+  {id:'nomi', name:'Nomi di persona'}
+];
+const HARD = ['H','J','K','Q','W','X','Y'];
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+function load(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+
+let custom = load('lic_custom', []);
+let settings = Object.assign({
+  players:['Marco','Giulia','Luca'],
+  seconds:60,
+  categoryId:'calciatori',
+  noHard:true
+}, load('lic_settings', {}));
+
+function categories(){ return BUILTIN.concat(custom); }
+function catName(id){ const c = categories().find(c=>c.id===id); return c ? c.name : 'Calciatori'; }
+
+/* ---------- stato partita ---------- */
+let game = null;   // {round, letter, used:[], turn, round:[], totals:[], history}
+let timer = null;  // {left, total, running, last, raf}
+let sheet = null;
+
+/* ---------- audio e wake lock ---------- */
+let actx = null, wake = null;
+function beep(freq, dur){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = freq; o.type='square';
+    g.gain.setValueAtTime(.08, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + dur);
+    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
+  }catch(e){}
+}
+async function keepAwake(){ try{ if(navigator.wakeLock && !wake) wake = await navigator.wakeLock.request('screen'); }catch(e){} }
+function releaseAwake(){ try{ wake && wake.release(); }catch(e){} wake = null; }
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function playerName(i){ const n = (settings.players[i]||'').trim(); return n || ('Giocatore ' + (i+1)); }
+
+/* ---------- SETUP ---------- */
+function renderSetup(){
+  stopTimer(); releaseAwake();
+  const p = settings.players;
+  const cats = categories();
+  $app.innerHTML = `
+  <header class="top">
+    <div class="brand">Lettera <b>in</b> Campo</div>
+    <span class="tag">${p.length} giocatori</span>
+  </header>
+  <div class="screen">
+    <section class="panel">
+      <div class="row" style="justify-content:space-between"><h2>Giocatori</h2><span class="tag">da 2 a 8</span></div>
+      <div class="players">
+        ${p.map((n,i)=>`
+          <div class="player">
+            <span class="num">${i+1}</span>
+            <input type="text" id="pl-${i}" data-i="${i}" value="${esc(n)}" placeholder="Giocatore ${i+1}" maxlength="18" autocomplete="off" aria-label="Nome giocatore ${i+1}">
+            <button class="icon-btn" data-del="${i}" aria-label="Rimuovi giocatore ${i+1}" ${p.length<=2?'disabled':''}>−</button>
+          </div>`).join('')}
+      </div>
+      <button class="ghost" id="addPlayer" ${p.length>=8?'disabled':''}>+ Aggiungi giocatore</button>
+    </section>
+
+    <section class="panel">
+      <h2>Tempo per turno</h2>
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap">
+        <div class="stepper">
+          <button class="icon-btn" id="tMinus" aria-label="Meno 5 secondi">−</button>
+          <div><div class="val" id="tVal">${settings.seconds}</div></div>
+          <button class="icon-btn" id="tPlus" aria-label="Più 5 secondi">+</button>
+          <span class="unit">secondi</span>
+        </div>
+        <div class="presets">
+          ${[30,45,60,90,120].map(s=>`<button data-preset="${s}" aria-pressed="${settings.seconds===s}">${s}s</button>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Categoria</h2>
+      <div class="chips">
+        ${cats.map(c=>`<button class="chip" data-cat="${c.id}" aria-pressed="${settings.categoryId===c.id}">${esc(c.name)}${c.custom?`<span class="x" data-rm="${c.id}" aria-label="Elimina ${esc(c.name)}">✕</span>`:''}</button>`).join('')}
+      </div>
+      <div class="row">
+        <input type="text" id="newCat" placeholder="Nuova categoria (es. Pokémon)" maxlength="28" autocomplete="off" aria-label="Nuova categoria">
+        <button class="icon-btn" id="addCat" aria-label="Aggiungi categoria">+</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="noHard" ${settings.noHard?'checked':''}> <span>Escludi lettere difficili (H, J, K, Q, W, X, Y)</span></label>
+    </section>
+
+    <button class="cta" id="start">Inizia partita</button>
+  </div>`;
+
+  $app.querySelectorAll('input[data-i]').forEach(inp=>{
+    inp.addEventListener('input', e=>{ settings.players[+e.target.dataset.i] = e.target.value; save('lic_settings', settings); });
+  });
+  $app.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ settings.players.splice(+b.dataset.del,1); save('lic_settings',settings); renderSetup(); });
+  $app.querySelector('#addPlayer').onclick=()=>{ if(settings.players.length<8){ settings.players.push(''); save('lic_settings',settings); renderSetup(); const last=$app.querySelector('#pl-'+(settings.players.length-1)); last&&last.focus(); } };
+  const setSec = s=>{ settings.seconds=Math.max(10,Math.min(300,s)); save('lic_settings',settings); renderSetup(); };
+  $app.querySelector('#tMinus').onclick=()=>setSec(settings.seconds-5);
+  $app.querySelector('#tPlus').onclick=()=>setSec(settings.seconds+5);
+  $app.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>setSec(+b.dataset.preset));
+  $app.querySelectorAll('[data-cat]').forEach(b=>b.onclick=(e)=>{
+    if(e.target.dataset.rm){ askRemoveCat(e.target.dataset.rm); return; }
+    settings.categoryId=b.dataset.cat; save('lic_settings',settings); renderSetup();
+  });
+  const addCat = ()=>{
+    const v = $app.querySelector('#newCat').value.trim();
+    if(!v) return;
+    const exists = categories().find(c=>c.name.toLowerCase()===v.toLowerCase());
+    if(exists){ settings.categoryId = exists.id; }
+    else{ const id='c_'+Date.now().toString(36); custom.push({id,name:v,custom:true}); save('lic_custom',custom); settings.categoryId=id; }
+    save('lic_settings',settings); renderSetup();
+  };
+  $app.querySelector('#addCat').onclick=addCat;
+  $app.querySelector('#newCat').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addCat(); }});
+  $app.querySelector('#noHard').onchange=e=>{ settings.noHard=e.target.checked; save('lic_settings',settings); };
+  $app.querySelector('#start').onclick=startGame;
+}
+
+function askRemoveCat(id){
+  const c = custom.find(c=>c.id===id); if(!c) return;
+  showSheet(`<h2>Eliminare “${esc(c.name)}”?</h2><p class="hint">La categoria sparisce dall'elenco su questo telefono.</p>
+    <div class="row"><button class="cta alt" data-sh="no">Annulla</button><button class="cta" data-sh="yes" style="font-size:18px;padding:13px">Elimina</button></div>`,
+    ans=>{ if(ans==='yes'){ custom = custom.filter(x=>x.id!==id); save('lic_custom',custom); if(settings.categoryId===id){ settings.categoryId='calciatori'; save('lic_settings',settings);} } renderSetup(); });
+}
+
+function showSheet(html, cb){
+  closeSheet();
+  sheet = document.createElement('div'); sheet.className='sheet';
+  sheet.innerHTML = `<div class="panel" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(sheet);
+  sheet.querySelectorAll('[data-sh]').forEach(b=>b.onclick=()=>{ const a=b.dataset.sh; closeSheet(); cb&&cb(a); });
+  const f = sheet.querySelector('[data-sh]'); f&&f.focus();
+}
+function closeSheet(){ if(sheet){ sheet.remove(); sheet=null; } }
+
+/* ---------- PARTITA ---------- */
+function startGame(){
+  settings.players = settings.players.map((n,i)=>n.trim()||('Giocatore '+(i+1)));
+  save('lic_settings',settings);
+  game = { roundNo:0, letter:null, used:[], turn:0, scores:[], totals:settings.players.map(()=>0), wins:settings.players.map(()=>0) };
+  newRound();
+}
+
+function drawLetter(){
+  let pool = ALPHA.filter(l=>!(settings.noHard && HARD.includes(l)));
+  let fresh = pool.filter(l=>!game.used.includes(l));
+  if(!fresh.length){ game.used=[]; fresh=pool; }
+  const l = fresh[Math.floor(Math.random()*fresh.length)];
+  game.used.push(l);
+  return l;
+}
+
+function newRound(){
+  game.roundNo++;
+  game.letter = drawLetter();
+  game.turn = 0;
+  game.scores = settings.players.map(()=>null);
+  renderDraw();
+}
+
+function renderDraw(){
+  $app.innerHTML = `
+  <header class="top"><div class="brand">Round <b>${game.roundNo}</b></div><span class="tag">${esc(catName(settings.categoryId))}</span></header>
+  <div class="screen">
+    <p class="label center" style="margin:8px 0 0">Estrazione lettera</p>
+    <div class="letter-wrap" style="padding:18px 0"><div class="letter rolling" id="rl">A</div></div>
+    <p class="center cat" id="drawCat" style="opacity:.0;margin:0">${esc(catName(settings.categoryId))} con la lettera ${game.letter}</p>
+    <div class="btns"><button class="cta" id="go" disabled>Via!</button></div>
+  </div>`;
+  const rl = $app.querySelector('#rl');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pool = ALPHA.filter(l=>!(settings.noHard && HARD.includes(l)));
+  let n = 0;
+  const finish = ()=>{ rl.textContent = game.letter; rl.classList.remove('rolling'); $app.querySelector('#drawCat').style.opacity=1; $app.querySelector('#go').disabled=false; };
+  if(reduce){ finish(); }
+  else{
+    const tick = ()=>{
+      if(!document.body.contains(rl)) return;
+      n++; rl.textContent = pool[Math.floor(Math.random()*pool.length)];
+      if(n<18) setTimeout(tick, 40 + n*6); else finish();
+    };
+    tick();
+  }
+  $app.querySelector('#go').onclick=renderReady;
+}
+
+function renderReady(){
+  stopTimer();
+  const i = game.turn;
+  $app.innerHTML = `
+  <header class="top"><div class="brand">Round <b>${game.roundNo}</b></div><span class="tag">Turno ${i+1} di ${settings.players.length}</span></header>
+  <div class="screen">
+    <div class="board"><div><div class="label">Tocca a</div><div class="who">${esc(playerName(i))}</div></div>
+      <div class="meta">${settings.seconds}s</div></div>
+    <div class="letter-wrap" style="padding:10px 0">
+      <div class="letter">${game.letter}</div>
+    </div>
+    <p class="center cat" style="margin:0">${esc(catName(settings.categoryId))}</p>
+    <p class="hint center">Passa il telefono a chi conta. Ogni parola valida è +1: tocca il riquadro bianco a ogni risposta giusta.</p>
+    ${tableRows(true)}
+    <div class="btns">
+      <button class="cta" id="startTurn">Avvia il tempo</button>
+      <button class="cta alt" id="quit">Torna alle impostazioni</button>
+    </div>
+  </div>`;
+  $app.querySelector('#startTurn').onclick=()=>{ beep(880,.08); renderPlay(); };
+  $app.querySelector('#quit').onclick=()=>showSheet(`<h2>Abbandonare la partita?</h2><p class="hint">I punteggi di questa partita andranno persi.</p>
+    <div class="row"><button class="cta alt" data-sh="no">Continua</button><button class="cta" data-sh="yes" style="font-size:18px;padding:13px">Abbandona</button></div>`,
+    a=>{ if(a==='yes'){ game=null; renderSetup(); } });
+}
+
+function renderPlay(){
+  const i = game.turn;
+  let count = 0;
+  $app.innerHTML = `
+  <div class="screen">
+    <div class="board"><div><div class="label">Round ${game.roundNo} · ${esc(catName(settings.categoryId))}</div><div class="who">${esc(playerName(i))}</div></div>
+      <div class="letter small" aria-label="Lettera ${game.letter}">${game.letter}</div></div>
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <span class="time" id="time">${fmt(settings.seconds)}</span>
+      <span class="tag" id="state">In corso</span>
+    </div>
+    <div class="clock" id="clock"><i id="bar"></i></div>
+    <button class="counter" id="plus" aria-label="Aggiungi una parola"><span class="n" id="n">0</span><span class="s">Tocca per +1 parola</span></button>
+    <div class="ctrl">
+      <button id="minus">−1 parola</button>
+      <button id="pause">Pausa</button>
+      <button id="end">Stop</button>
+    </div>
+  </div>`;
+  const $n = $app.querySelector('#n'), $plus = $app.querySelector('#plus');
+  const upd = ()=>{ $n.textContent = count; $plus.classList.remove('bump'); void $plus.offsetWidth; $plus.classList.add('bump'); };
+  $plus.onclick=()=>{ if(!timer||timer.left<=0) return; count++; upd(); };
+  $app.querySelector('#minus').onclick=()=>{ if(count>0){ count--; upd(); } };
+  $app.querySelector('#pause').onclick=(e)=>{
+    if(!timer) return;
+    timer.running = !timer.running; timer.last = performance.now();
+    e.target.textContent = timer.running ? 'Pausa' : 'Riprendi';
+    $app.querySelector('#state').textContent = timer.running ? 'In corso' : 'In pausa';
+    $plus.disabled = !timer.running;
+    if(timer.running) loop();
+  };
+  $app.querySelector('#end').onclick=()=>{ endTurn(count); };
+  keepAwake();
+  startTimer(()=>endTurn(count), ()=>count);
+}
+
+function fmt(s){ s=Math.ceil(Math.max(0,s)); const m=Math.floor(s/60), r=s%60; return m? `${m}:${String(r).padStart(2,'0')}` : String(r); }
+
+function startTimer(onDone){
+  stopTimer();
+  timer = { left:settings.seconds, total:settings.seconds, running:true, last:performance.now(), lastBeep:null, onDone };
+  loop();
+}
+function loop(){
+  if(!timer || !timer.running) return;
+  const now = performance.now();
+  timer.left -= (now - timer.last)/1000; timer.last = now;
+  const $t = document.getElementById('time'), $b = document.getElementById('bar'), $c = document.getElementById('clock');
+  if($t){
+    $t.textContent = fmt(timer.left);
+    const low = timer.left <= 5;
+    $t.classList.toggle('low', low); $c.classList.toggle('low', low);
+    $b.style.transform = `scaleX(${Math.max(0,timer.left/timer.total)})`;
+    const sec = Math.ceil(timer.left);
+    if(low && sec>0 && sec!==timer.lastBeep){ timer.lastBeep=sec; beep(660,.07); }
+  }
+  if(timer.left<=0){ const d=timer.onDone; timer.running=false; beep(330,.5); d && d(); return; }
+  timer.raf = requestAnimationFrame(loop);
+}
+function stopTimer(){ if(timer){ timer.running=false; cancelAnimationFrame(timer.raf); } timer=null; }
+
+function endTurn(count){
+  // il conteggio vero è nel DOM: leggo da lì per sicurezza
+  const $n = document.getElementById('n'); if($n) count = +$n.textContent;
+  stopTimer();
+  game.scores[game.turn] = count;
+  renderTurnResult(count);
+}
+
+function renderTurnResult(count){
+  const i = game.turn, last = i === settings.players.length-1;
+  $app.innerHTML = `
+  <header class="top"><div class="brand">Tempo <b>scaduto</b></div><span class="tag">Turno ${i+1} di ${settings.players.length}</span></header>
+  <div class="screen">
+    <div class="panel" style="align-items:center;text-align:center;gap:6px">
+      <div class="label">${esc(playerName(i))} · lettera ${game.letter}</div>
+      <div class="result-big" id="res">${count}</div>
+      <div class="cat">${count===1?'parola':'parole'}</div>
+      <div class="row" style="margin-top:6px">
+        <button class="icon-btn" id="fixMinus" aria-label="Correggi: meno una">−</button>
+        <span class="hint">correggi il conteggio</span>
+        <button class="icon-btn" id="fixPlus" aria-label="Correggi: più una">+</button>
+      </div>
+    </div>
+    ${tableRows(false)}
+    <div class="btns">
+      <button class="cta" id="next">${last ? 'Vedi chi vince il round' : 'Prossimo: ' + esc(playerName(i+1))}</button>
+    </div>
+  </div>`;
+  const fix = d=>{ game.scores[i] = Math.max(0, game.scores[i]+d); renderTurnResult(game.scores[i]); };
+  $app.querySelector('#fixMinus').onclick=()=>fix(-1);
+  $app.querySelector('#fixPlus').onclick=()=>fix(1);
+  $app.querySelector('#next').onclick=()=>{
+    if(last) closeRound(); else { game.turn++; renderReady(); }
+  };
+}
+
+function tableRows(isReady){
+  const rows = settings.players.map((_,i)=>({i, s:game.scores[i]}));
+  const done = rows.filter(r=>r.s!==null);
+  if(!done.length) return '';
+  return `<section class="panel" style="gap:4px"><div class="label">Questo round</div><div class="table">
+    ${rows.map(r=>`<div class="trow ${r.s===null?'wait':''}"><span class="pos">${r.i+1}</span><span class="nm">${esc(playerName(r.i))}</span><span class="sub">${r.s===null?'in attesa':''}</span><span class="pts">${r.s===null?'–':r.s}</span></div>`).join('')}
+  </div></section>`;
+}
+
+function closeRound(){
+  const max = Math.max(...game.scores);
+  game.scores.forEach((s,i)=>{ game.totals[i]+=s; if(s===max && max>0) game.wins[i]++; });
+  releaseAwake();
+  renderRoundEnd(max);
+}
+
+function renderRoundEnd(max){
+  const winners = settings.players.map((_,i)=>i).filter(i=>game.scores[i]===max);
+  const round = settings.players.map((_,i)=>i).sort((a,b)=>game.scores[b]-game.scores[a]);
+  const overall = settings.players.map((_,i)=>i).sort((a,b)=> game.wins[b]-game.wins[a] || game.totals[b]-game.totals[a]);
+  const winText = max===0 ? 'Nessuno' : winners.map(playerName).map(esc).join(' e ');
+  $app.innerHTML = `
+  <header class="top"><div class="brand">Fine <b>round ${game.roundNo}</b></div><span class="tag">Lettera ${game.letter}</span></header>
+  <div class="screen">
+    <div class="winner">
+      <span class="k">${max===0?'Round senza punti':(winners.length>1?'Pareggio · vincono il round':'Vince il round')}</span>
+      <span class="v">${winText}</span>
+      <span>${max} ${max===1?'parola':'parole'} · ${esc(catName(settings.categoryId))} con la ${game.letter}</span>
+    </div>
+    <section class="panel" style="gap:4px"><div class="label">Round ${game.roundNo}</div><div class="table">
+      ${round.map((i,k)=>`<div class="trow ${game.scores[i]===max&&max>0?'top':''}"><span class="pos">${k+1}</span><span class="nm">${esc(playerName(i))}</span><span class="sub"></span><span class="pts">${game.scores[i]}</span></div>`).join('')}
+    </div></section>
+    ${game.roundNo>1 || true ? `<section class="panel" style="gap:4px"><div class="row" style="justify-content:space-between"><span class="label">Classifica partita</span><span class="tag">round vinti · parole</span></div><div class="table">
+      ${overall.map((i,k)=>`<div class="trow"><span class="pos">${k+1}</span><span class="nm">${esc(playerName(i))}</span><span class="sub">${game.totals[i]} parole</span><span class="pts">${game.wins[i]}</span></div>`).join('')}
+    </div></section>`:''}
+    <div class="btns">
+      <button class="cta" id="again">Nuovo round, nuova lettera</button>
+      <button class="cta alt" id="settings">Cambia categoria o giocatori</button>
+    </div>
+  </div>`;
+  $app.querySelector('#again').onclick=newRound;
+  $app.querySelector('#settings').onclick=()=>{ game=null; renderSetup(); };
+}
+
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && timer && timer.running){ timer.last=performance.now(); keepAwake(); } });
+
+renderSetup();
+})();
+</script>
+</body>
+</html>

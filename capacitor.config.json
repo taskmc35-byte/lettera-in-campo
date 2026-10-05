@@ -1,0 +1,9 @@
+{
+  "appId": "it.novaprojectagency.letteraincampo",
+  "appName": "Lettera in Campo",
+  "webDir": "www",
+  "backgroundColor": "#1b1830",
+  "android": {
+    "backgroundColor": "#1b1830"
+  }
+}
